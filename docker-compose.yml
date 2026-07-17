@@ -1,0 +1,76 @@
+services:
+  # --------------------------------------------------------
+  # 1. PostgreSQL
+  # --------------------------------------------------------
+  postgres:
+    image: postgres:15-alpine
+    container_name: fucar_postgres
+    restart: always
+    environment:
+      POSTGRES_USER: root
+      POSTGRES_PASSWORD: root
+    ports:
+      - "5432:5432"
+    volumes:
+      - fucar_data:/var/lib/postgresql/data
+      - ./init-db.sql:/docker-entrypoint-initdb.d/init-db.sql
+    networks:
+      - fucar_network
+
+  # --------------------------------------------------------
+  # 2. pgAdmin
+  # --------------------------------------------------------
+  pgadmin:
+    image: dpage/pgadmin4
+    container_name: fucar_pgadmin
+    restart: always
+    environment:
+      PGADMIN_DEFAULT_EMAIL: hoangvanphong102@gmail.com
+      PGADMIN_DEFAULT_PASSWORD: admin
+    ports:
+      - "5050:80"
+    depends_on:
+      - postgres
+    networks:
+      - fucar_network
+
+  # --------------------------------------------------------
+  # 3. Zookeeper
+  # --------------------------------------------------------
+  zookeeper:
+    image: confluentinc/cp-zookeeper:7.5.0
+    container_name: fucar_zookeeper
+    environment:
+      ZOOKEEPER_CLIENT_PORT: 2181
+      ZOOKEEPER_TICK_TIME: 2000
+    ports:
+      - "2181:2181"
+    networks:
+      - fucar_network
+
+  # --------------------------------------------------------
+  # 4. Kafka
+  # --------------------------------------------------------
+  kafka:
+    image: confluentinc/cp-kafka:7.5.0
+    container_name: fucar_kafka
+    depends_on:
+      - zookeeper
+    ports:
+      - "9092:9092"
+    environment:
+      KAFKA_BROKER_ID: 1
+      KAFKA_ZOOKEEPER_CONNECT: zookeeper:2181
+      KAFKA_ADVERTISED_LISTENERS: PLAINTEXT://localhost:9092,PLAINTEXT_INTERNAL://kafka:29092
+      KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
+      KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
+      KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - fucar_network
+
+volumes:
+  fucar_data:
+
+networks:
+  fucar_network:
+    driver: bridge
