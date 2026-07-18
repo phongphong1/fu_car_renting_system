@@ -1,6 +1,11 @@
 server:
   port: 8080
 
+app:
+  jwt:
+    secret: mot-chuoi-bi-mat-cuc-ky-dai-va-kho-doan-abc-xyz
+
+
 spring:
   application:
     name: api-gateway
@@ -21,6 +26,37 @@ spring:
           uri: lb://renting-service
           predicates:
             - Path=/api/renting/**
+
+        - id: customer-service-docs
+          uri: lb://customer-service
+          predicates:
+            - Path=/customer-service/v3/api-docs
+          filters:
+            - RewritePath=/customer-service/(?<segment>.*), /$\{segment}
+
+        - id: car-service-docs
+          uri: lb://car-service
+          predicates:
+            - Path=/car-service/v3/api-docs
+          filters:
+            - RewritePath=/car-service/(?<segment>.*), /$\{segment}
+
+        - id: renting-service-docs
+          uri: lb://renting-service
+          predicates:
+            - Path=/renting-service/v3/api-docs
+          filters:
+            - RewritePath=/renting-service/(?<segment>.*), /$\{segment}
+
+springdoc:
+  swagger-ui:
+    urls:
+      - name: 1. Customer Service API
+        url: /customer-service/v3/api-docs
+      - name: 2. Car Service API
+        url: /car-service/v3/api-docs
+      - name: 3. Renting Service API
+        url: /renting-service/v3/api-docs
 
 eureka:
   client:
