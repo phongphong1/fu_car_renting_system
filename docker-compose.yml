@@ -1,3 +1,5 @@
+version: '3.8'
+
 services:
   # --------------------------------------------------------
   # 1. PostgreSQL
@@ -25,7 +27,7 @@ services:
     container_name: fucar_pgadmin
     restart: always
     environment:
-      PGADMIN_DEFAULT_EMAIL: hoangvanphong102@gmail.com
+      PGADMIN_DEFAULT_EMAIL: admin@example.com
       PGADMIN_DEFAULT_PASSWORD: admin
     ports:
       - "5050:80"
@@ -65,6 +67,94 @@ services:
       KAFKA_LISTENER_SECURITY_PROTOCOL_MAP: PLAINTEXT:PLAINTEXT,PLAINTEXT_INTERNAL:PLAINTEXT
       KAFKA_INTER_BROKER_LISTENER_NAME: PLAINTEXT_INTERNAL
       KAFKA_OFFSETS_TOPIC_REPLICATION_FACTOR: 1
+    networks:
+      - fucar_network
+
+  # --------------------------------------------------------
+  # 5. Eureka Server
+  # --------------------------------------------------------
+  eureka-server:
+    build:
+      context: ./infrastructure/eureka-server
+    container_name: fucar_eureka
+    ports:
+      - "8761:8761"
+    networks:
+      - fucar_network
+
+  # --------------------------------------------------------
+  # 6. API Gateway
+  # --------------------------------------------------------
+  api-gateway:
+    build:
+      context: ./infrastructure/api-gateway
+    container_name: fucar_gateway
+    ports:
+      - "8080:8080"
+    depends_on:
+      - eureka-server
+    environment:
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    networks:
+      - fucar_network
+
+  # --------------------------------------------------------
+  # 7. Customer Service
+  # --------------------------------------------------------
+  customer-service:
+    build:
+      context: ./service/customer-service
+    container_name: fucar_customer
+    environment:
+      - DB_URL=jdbc:postgresql://postgres:5432/customer_db
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - postgres
+      - kafka
+      - eureka-server
+    networks:
+      - fucar_network
+
+  # --------------------------------------------------------
+  # 8. Car Service
+  # --------------------------------------------------------
+  car-service:
+    build:
+      context: ./service/car-service
+    container_name: fucar_car
+    environment:
+      - DB_URL=jdbc:postgresql://postgres:5432/car_db
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - postgres
+      - kafka
+      - eureka-server
+    networks:
+      - fucar_network
+
+  # --------------------------------------------------------
+  # 9. Renting Service (Nhạc trưởng Saga)
+  # --------------------------------------------------------
+  renting-service:
+    build:
+      context: ./service/renting-service
+    container_name: fucar_renting
+    environment:
+      - DB_URL=jdbc:postgresql://postgres:5432/rental_db
+      - DB_USER=root
+      - DB_PASSWORD=root
+      - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
+      - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
+    depends_on:
+      - postgres
+      - kafka
+      - eureka-server
     networks:
       - fucar_network
 
