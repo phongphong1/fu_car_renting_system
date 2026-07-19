@@ -5,6 +5,7 @@ import com.fpt.carservice.domain.repository.IManufacturerRepository;
 import lombok.RequiredArgsConstructor;
 import org.springframework.stereotype.Component;
 
+import java.util.List;
 import java.util.Optional;
 
 @Component
@@ -16,5 +17,10 @@ public class ManufacturerRepositoryAdapter implements IManufacturerRepository {
     @Override
     public Optional<Manufacturer> findById(Long id) {
         return manufacturerJpaRepository.findById(id);
+    }
+
+    @Override
+    public List<Manufacturer> findAll() {
+        return manufacturerJpaRepository.findAll();
     }
 }
