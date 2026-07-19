@@ -38,10 +38,8 @@ Cách đơn giản nhất để khởi chạy toàn bộ hệ thống là sử d
 3.  Chạy lệnh sau:
 
     ```bash
-    docker-compose up -d
+    docker-compose up -d --build
     ```
-
-    *Cờ `-d` giúp chạy các container ngầm (background).*
 
 4.  Đợi các dịch vụ khởi động hoàn tất. Bạn có thể xem log bằng lệnh `docker-compose logs -f`.
 
