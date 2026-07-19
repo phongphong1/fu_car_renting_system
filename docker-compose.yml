@@ -75,24 +75,38 @@ services:
   # --------------------------------------------------------
   eureka-server:
     build:
-      context: ./infrastructure/eureka-server
+      context: .
+      dockerfile: infrastructure/eureka-server/Dockerfile
+      args:
+        SERVICE_PATH: infrastructure/eureka-server
     container_name: fucar_eureka
     ports:
       - "8761:8761"
     networks:
       - fucar_network
 
+    healthcheck:
+      test: [ "CMD", "wget", "--spider", "-q", "http://localhost:8761/" ]
+      interval: 10s
+      timeout: 5s
+      retries: 5
+      start_period: 20s
+
   # --------------------------------------------------------
   # 6. API Gateway
   # --------------------------------------------------------
   api-gateway:
     build:
-      context: ./infrastructure/api-gateway
+      context: .
+      dockerfile: infrastructure/api-gateway/Dockerfile
+      args:
+        SERVICE_PATH: infrastructure/api-gateway
     container_name: fucar_gateway
     ports:
       - "8080:8080"
     depends_on:
-      - eureka-server
+      eureka-server:
+        condition: service_healthy
     environment:
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     networks:
@@ -103,7 +117,10 @@ services:
   # --------------------------------------------------------
   customer-service:
     build:
-      context: ./service/customer-service
+      context: .
+      dockerfile: service/customer-service/Dockerfile
+      args:
+        SERVICE_PATH: service/customer-service
     container_name: fucar_customer
     environment:
       - DB_URL=jdbc:postgresql://postgres:5432/customer_db
@@ -112,9 +129,13 @@ services:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
-      - postgres
-      - kafka
-      - eureka-server
+      postgres:
+        condition: service_started
+      kafka:
+        condition: service_started
+      eureka-server:
+        condition: service_healthy
+    restart: on-failure
     networks:
       - fucar_network
 
@@ -123,7 +144,10 @@ services:
   # --------------------------------------------------------
   car-service:
     build:
-      context: ./service/car-service
+      context: .
+      dockerfile: service/car-service/Dockerfile
+      args:
+        SERVICE_PATH: service/car-service
     container_name: fucar_car
     environment:
       - DB_URL=jdbc:postgresql://postgres:5432/car_db
@@ -132,9 +156,13 @@ services:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
-      - postgres
-      - kafka
-      - eureka-server
+      postgres:
+        condition: service_started
+      kafka:
+        condition: service_started
+      eureka-server:
+        condition: service_healthy
+    restart: on-failure
     networks:
       - fucar_network
 
@@ -143,7 +171,10 @@ services:
   # --------------------------------------------------------
   renting-service:
     build:
-      context: ./service/renting-service
+      context: .
+      dockerfile: service/renting-service/Dockerfile
+      args:
+        SERVICE_PATH: service/renting-service
     container_name: fucar_renting
     environment:
       - DB_URL=jdbc:postgresql://postgres:5432/rental_db
@@ -152,9 +183,13 @@ services:
       - KAFKA_BOOTSTRAP_SERVERS=kafka:29092
       - EUREKA_CLIENT_SERVICEURL_DEFAULTZONE=http://eureka-server:8761/eureka/
     depends_on:
-      - postgres
-      - kafka
-      - eureka-server
+      postgres:
+        condition: service_started
+      kafka:
+        condition: service_started
+      eureka-server:
+        condition: service_healthy
+    restart: on-failure
     networks:
       - fucar_network
 
