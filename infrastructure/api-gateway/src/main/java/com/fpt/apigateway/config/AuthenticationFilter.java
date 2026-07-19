@@ -40,6 +40,11 @@ public class AuthenticationFilter implements GlobalFilter, Ordered {
     public Mono<Void> filter(ServerWebExchange exchange, GatewayFilterChain chain) {
         ServerHttpRequest request = exchange.getRequest();
 
+        // Bỏ qua preflight request của CORS (OPTIONS)
+        if (request.getMethod().name().equals("OPTIONS")) {
+            return chain.filter(exchange);
+        }
+
         // không cần token
         boolean isSecured = OPEN_API_ENDPOINTS.stream()
                 .noneMatch(uri -> request.getURI().getPath().contains(uri));
