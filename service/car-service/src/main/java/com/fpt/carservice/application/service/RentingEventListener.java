@@ -12,6 +12,7 @@ import org.springframework.kafka.annotation.KafkaListener;
 import org.springframework.stereotype.Service;
 import org.springframework.transaction.annotation.Transactional;
 
+import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.List;
 
@@ -39,8 +40,12 @@ public class RentingEventListener {
                 Long carId = carNode.get("carId").asLong();
                 CarInformation car = carRepository.findById(carId).orElse(null);
 
-                // Nếu xe không tồn tại hoặc không ở trạng thái Sẵn sàng
-                if (car == null || !"AVAILABLE".equals(car.getCarStatus())) {
+                BigDecimal dailyPrice = carNode.get("dailyPrice").decimalValue();
+                // Nếu xe không tồn tại, không ở trạng thái Sẵn sàng hoặc đã bị thay đổi giá
+                if (car == null
+                        || !"AVAILABLE".equals(car.getCarStatus())
+                        || car.getCarRentingPricePerDay().compareTo(dailyPrice) != 0
+                ) {
                     isAllCarsAvailable = false;
                     break;
                 }
@@ -59,6 +64,7 @@ public class RentingEventListener {
                 eventType = "CAR_RESERVED_FAILED";
             }
 
+            ((com.fasterxml.jackson.databind.node.ObjectNode) jsonNode).put("eventType", eventType);
             String replyPayload = objectMapper.writeValueAsString(jsonNode);
             OutboxEvent replyEvent = new OutboxEvent(
                     "RentingTransaction",

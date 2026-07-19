@@ -35,6 +35,7 @@ public class RentingEventListener {
             // kiểm tra trạng thái khách hàng
             if (customer == null || "BANNED".equals(customer.getCustomerStatus())) {
 
+                ((com.fasterxml.jackson.databind.node.ObjectNode) jsonNode).put("eventType", "CUSTOMER_BANNED");
                 String replyPayload = objectMapper.writeValueAsString(jsonNode);
                 OutboxEvent replyEvent = new OutboxEvent(
                         "RentingTransaction",

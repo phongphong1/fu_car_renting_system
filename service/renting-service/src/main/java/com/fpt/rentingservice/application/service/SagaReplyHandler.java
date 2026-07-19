@@ -2,6 +2,7 @@ package com.fpt.rentingservice.application.service;
 
 import com.fasterxml.jackson.databind.JsonNode;
 import com.fasterxml.jackson.databind.ObjectMapper;
+import com.fasterxml.jackson.databind.node.ObjectNode;
 import com.fpt.rentingservice.domain.model.OutboxEvent;
 import com.fpt.rentingservice.domain.model.RentingTransaction;
 import com.fpt.rentingservice.domain.repository.IOutboxRepository;
@@ -43,11 +44,14 @@ public class SagaReplyHandler {
 
                 if (payload.contains("CUSTOMER_BANNED")) {
 
+                    ((ObjectNode) jsonNode).put("eventType", "RENTING_CANCELLED");
+                    String cancelPayload = objectMapper.writeValueAsString(jsonNode);
+
                     OutboxEvent cancelEvent = new OutboxEvent(
                             "RentingTransaction",
                             transactionId.toString(),
                             "RENTING_CANCELLED",
-                            payload
+                            cancelPayload
                     );
                     outboxRepository.save(cancelEvent);
                 }

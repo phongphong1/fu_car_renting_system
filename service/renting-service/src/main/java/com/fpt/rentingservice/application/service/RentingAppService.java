@@ -44,6 +44,7 @@ public class RentingAppService {
             payloadData.put("transactionId", savedTx.getId());
             payloadData.put("customerId", savedTx.getCustomerId());
             payloadData.put("cars", request.getCars());
+            payloadData.put("eventType", "RENTING_CREATED");
 
             String jsonPayload = objectMapper.writeValueAsString(payloadData);
 
