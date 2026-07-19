@@ -3,7 +3,7 @@ server:
 
 app:
   admin:
-    email: admin@gmail.com
+    email: admin@example.com
     password: admin
   jwt:
     secret: mot-chuoi-bi-mat-cuc-ky-dai-va-kho-doan-abc-xyz
@@ -40,6 +40,8 @@ spring:
       auto-offset-reset: earliest
 
 eureka:
+  instance:
+    prefer-ip-address: true
   client:
     service-url:
       defaultZone: http://localhost:8761/eureka/

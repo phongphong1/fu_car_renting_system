@@ -16,6 +16,7 @@ public class OpenApiConfig {
         final String securitySchemeName = "BearerAuth";
 
         return new OpenAPI()
+                .addServersItem(new io.swagger.v3.oas.models.servers.Server().url("/"))
                 .info(new Info().title("Customer Service API")
                                 .description("Tài liệu API cho Quản lý Khách hàng")
                                 .version("1.0.0"))

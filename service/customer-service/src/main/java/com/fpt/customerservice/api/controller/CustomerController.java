@@ -39,6 +39,7 @@ public class CustomerController {
         return ResponseEntity.ok(Collections.singletonMap("token", token));
     }
 
+    @Operation(summary = "Lấy tất cả khách hàng", description = "API dành cho ADMIN để xem toàn bộ danh sách khách hàng")
     @GetMapping
     public ResponseEntity<?> getAllCustomers(
             @RequestHeader(value = "X-User-Role", required = false) String role
@@ -51,6 +52,7 @@ public class CustomerController {
         return ResponseEntity.ok(customerAppService.getAllCustomers());
     }
 
+    @Operation(summary = "Lấy thông tin khách hàng theo ID", description = "API dành cho ADMIN hoặc chính user đó để xem thông tin")
     @GetMapping("/{id}")
     public ResponseEntity<?> getCustomerById(
             @PathVariable Long id,
@@ -64,6 +66,7 @@ public class CustomerController {
         return ResponseEntity.ok(customerAppService.getCustomerById(id));
     }
 
+    @Operation(summary = "Cập nhật thông tin khách hàng", description = "API cho phép khách hàng tự cập nhật thông tin của mình")
     @PutMapping("/{id}")
     public ResponseEntity<?> updateProfile(
             @PathVariable Long id,
@@ -79,6 +82,7 @@ public class CustomerController {
         return ResponseEntity.ok(customerAppService.updateProfile(id, request));
     }
 
+    @Operation(summary = "Cập nhật trạng thái khách hàng", description = "API dành cho ADMIN để khoá/mở khoá tài khoản khách hàng")
     @PatchMapping("/{id}/status")
     public ResponseEntity<String> updateStatus(
             @PathVariable Long id,
@@ -93,6 +97,7 @@ public class CustomerController {
         return ResponseEntity.ok("Cập nhật trạng thái thành công!");
     }
 
+    @Operation(summary = "Xoá khách hàng", description = "API dành cho ADMIN để xoá tài khoản khách hàng")
     @DeleteMapping("/{id}")
     public ResponseEntity<String> deleteCustomer(
             @PathVariable Long id,

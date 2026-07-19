@@ -2,6 +2,8 @@ package com.fpt.rentingservice.api.controller;
 
 import com.fpt.rentingservice.application.dto.RentCarRequest;
 import com.fpt.rentingservice.application.service.RentingAppService;
+import io.swagger.v3.oas.annotations.Operation;
+import io.swagger.v3.oas.annotations.tags.Tag;
 import lombok.RequiredArgsConstructor;
 import lombok.extern.slf4j.Slf4j;
 import org.springframework.http.HttpStatus;
@@ -16,10 +18,12 @@ import java.util.Map;
 @RequestMapping("/api/renting")
 @RequiredArgsConstructor
 @Slf4j
+@Tag(name = "Renting API", description = "Các API liên quan đến thao tác thuê xe và lịch sử thuê xe")
 public class RentingController {
 
     private final RentingAppService rentingAppService;
 
+    @Operation(summary = "Tạo yêu cầu thuê xe", description = "API dành cho khách hàng để tạo mới 1 yêu cầu thuê xe")
     @PostMapping
     public ResponseEntity<Map<String, String>> createRentingTransaction(
             @RequestHeader(value = "X-User-Id", required = false) Long userIdFromGateway,
@@ -39,6 +43,7 @@ public class RentingController {
         return ResponseEntity.status(HttpStatus.ACCEPTED).body(response);
     }
 
+    @Operation(summary = "Lấy lịch sử thuê xe", description = "API dành cho khách hàng xem lại các xe mình đã thuê")
     @GetMapping("/history")
     public ResponseEntity<?> getMyRentingHistory(
             @RequestHeader(value = "X-User-Id", required = false) Long currentUserId) {
@@ -50,6 +55,7 @@ public class RentingController {
         return ResponseEntity.ok(rentingAppService.getMyHistory(currentUserId));
     }
 
+    @Operation(summary = "Báo cáo thống kê", description = "API dành cho ADMIN để xem báo cáo doanh thu, số lượng xe thuê theo thời gian")
     @GetMapping("/report")
     public ResponseEntity<?> getStatisticReport(
             @RequestParam("startDate") Instant startDate,
