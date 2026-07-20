@@ -24,7 +24,7 @@ Dự án này triển khai theo kiến trúc microservices. Nó bao gồm nhiề
 
 ## 🚀 Hướng dẫn cài đặt và chạy dự án
 
-### Yêu cầu hệ thống
+### Yêu cầu hệ thống 
 
 *   Đã cài đặt [Docker](https://docs.docker.com/get-docker/) và [Docker Compose](https://docs.docker.com/compose/install/).
 *   [Java 21](https://www.oracle.com/java/technologies/javase/jdk21-archive-downloads.html) và [Maven](https://maven.apache.org/download.cgi) (nếu bạn muốn build/chạy bên ngoài Docker).
